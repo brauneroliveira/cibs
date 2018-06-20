@@ -1,0 +1,7 @@
+DEBUG MODE
+
+export FLASK_ENV=development
+
+SET APP TO RUN
+
+export FLASK_APP=file.py
