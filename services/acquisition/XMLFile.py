@@ -9,7 +9,7 @@ class XMLFile:
             self.content = self.fromPath(path)
     
     def fromString(self, string):
-        self.content = ET.fromstring(string)
+        return ET.fromstring(string)
     
     def fromPath(self, path):
-        self.content = ET.parse(path).getroot()
+        return ET.parse(path).getroot()
