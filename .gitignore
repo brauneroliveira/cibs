@@ -1,0 +1,3 @@
+__pycache__
+services/acquisition/uploads/*
+!services/acquisition/uploads/empty
