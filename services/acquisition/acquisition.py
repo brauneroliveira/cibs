@@ -1,5 +1,6 @@
 from flask import Flask, request, redirect, url_for, flash
 from werkzeug.utils import secure_filename
+import requests
 import os, json
 
 app = Flask(__name__)
@@ -13,8 +14,8 @@ ALLOWED_EXTENSIONS = set(config['allowed_extensions'])
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-@app.route('/uploadLeito', methods=['GET', 'POST'])
-def upload_file():
+@app.route('/uploadHospitalBed', methods=['POST'])
+def uploadHospitalBed():
     if request.method == 'POST':
         # check if the post request has the file part
         if 'file' not in request.files:
@@ -27,9 +28,11 @@ def upload_file():
             flash('No selected file')
             return 'NO_FILE'
         if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            return filename
+            
+            url = 'http://localhost:5001/persistHospitalBed'
+            files = {'file': file}
+            r = requests.post(url, files=files)
+            return r.content
         return 'VOID'
     else:
         return 'REQUEST_NOT_POST'
