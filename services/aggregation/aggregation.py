@@ -1,19 +1,13 @@
 from flask import Flask, request, redirect, url_for, flash
+from flask_sqlalchemy import SQLAlchemy
 from werkzeug.utils import secure_filename
 from HospitalBed import HospitalBed
 from XMLFile import XMLFile
 import os, json
+from db import db
 
 app = Flask(__name__)
 app.secret_key = 'd5581c21abc693c36798ae91ec69b5aa521c3755b95d63eb399df7ec69b5aa52'
-
-#config = json.loads(open('config.json', 'r').read())
-
-#app.config['UPLOAD_FOLDER'] = config['upload_folder']
-#ALLOWED_EXTENSIONS = set(config['allowed_extensions'])
-
-# def allowed_file(filename):
-    # return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @app.route('/persistHospitalBed', methods=['POST'])
 def persistHospitalBed():
@@ -22,4 +16,38 @@ def persistHospitalBed():
 
     hb = HospitalBed(xmlfile)
 
+    query = '''SELECT L.id_leito FROM tb_leito L, tb_estabelecimento_saude E 
+        WHERE L.id_leito_unidade = {} AND E.cod_cnes = {}'''.format(hb.getId(), hb.getHeaderField('cnes'))
+
+    print(query)
+
+    id_dbhb = db.query(query)
+
+    if id_dbhb:
+        
+        query = '''UPDATE tb_leito SET id_estado_leito = {}, area = '{}' 
+        WHERE id_leito = {}'''.format(hb.getStatus(), hb.getArea(), id_dbhb[0][0])
+
+        db.execute(query)
+
+        return "Update made."
+    else:
+        query = '''WITH id_leito_tb_leito AS(
+
+        INSERT INTO tb_leito(id_estado_leito, id_estabelecimento_saude, area, id_leito_unidade) VALUES 
+        ({}, (SELECT id_estabelecimento_saude FROM tb_estabelecimento_saude WHERE cod_cnes = {}), '{}', {}) RETURNING id_leito
+
+        )
+        INSERT INTO tb_classificacao(id_referencia, id_leito, id_tipo_ref) VALUES
+        ((SELECT id_referencia FROM tb_referencia WHERE descricao = 'CNES_GENERICO'), 
+        (SELECT id_leito FROM id_leito_tb_leito), {})'''.format(hb.getStatus(), hb.getHeaderField('cnes'), hb.getArea(), hb.getId(), hb.getType())
+
+        db.execute(query)
+        
+        return 'Data inserted.'
+
     return hb.id
+
+
+
+# def saveHospitalBed()
