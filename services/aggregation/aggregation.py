@@ -48,6 +48,17 @@ def persistHospitalBed():
 
     return hb.id
 
+@app.route('/getHospitalBedsFromCNES/<int:cod_cnes>', methods=['GET'])
+def getHospitalBedsFromCNES(cod_cnes):
 
+    query = '''SELECT array_to_json(array_agg(row_to_json(j))) FROM (
+        SELECT US.cod_cnes, L.* FROM tb_estabelecimento_saude US
+        JOIN tb_leito L ON(L.id_estabelecimento_saude=US.id_estabelecimento_saude)
+        WHERE US.cod_cnes = {}
+        ) j'''.format(cod_cnes)
+    
+    r = db.query(query)
+    
+    return str(r[0][0])
 
 # def saveHospitalBed()
