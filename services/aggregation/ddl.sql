@@ -50,3 +50,9 @@ CREATE TABLE tb_classificacao(
     FOREIGN KEY(id_leito) REFERENCES tb_leito(id_leito),
     FOREIGN KEY(id_referencia) REFERENCES tb_referencia(id_referencia)
 )
+
+CREATE TABLE tb_rras(
+    id_rras     INTEGER,
+    descricao   VARCHAR(7),
+    PRIMARY KEY(id_rras)
+)
