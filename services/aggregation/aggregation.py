@@ -16,21 +16,21 @@ def persistHospitalBed():
 
     hb = HospitalBed(xmlfile)
 
-    query = '''SELECT L.id_leito FROM tb_leito L, tb_estabelecimento_saude E 
-        WHERE L.id_leito_unidade = {} AND E.cod_cnes = {}'''.format(hb.getId(), hb.getHeaderField('cnes'))
-
-    print(query)
+    query = '''SELECT L.id_leito FROM tb_leito L
+        JOIN tb_estabelecimento_saude E ON(L.id_estabelecimento_saude=E.id_estabelecimento_saude)
+        WHERE E.cod_cnes = {} AND
+        L.id_leito_unidade = {}'''.format(hb.getHeaderField('cnes'), hb.getId())
 
     id_dbhb = db.query(query)
 
     if id_dbhb:
-        
+     
         query = '''UPDATE tb_leito SET id_estado_leito = {}, area = '{}' 
         WHERE id_leito = {}'''.format(hb.getStatus(), hb.getArea(), id_dbhb[0][0])
 
         db.execute(query)
 
-        return "Update made."
+        return '{}, {}'.format(hb.getId(), hb.getHeaderField('cnes'))
     else:
         query = '''WITH id_leito_tb_leito AS(
 
@@ -60,5 +60,3 @@ def getHospitalBedsFromCNES(cod_cnes):
     r = db.query(query)
     
     return str(r[0][0])
-
-# def saveHospitalBed()
