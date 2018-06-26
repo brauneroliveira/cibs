@@ -56,3 +56,11 @@ CREATE TABLE tb_rras(
     descricao   VARCHAR(7),
     PRIMARY KEY(id_rras)
 )
+
+CREATE TABLE tb_regsaude(
+    id_reg_saude    INTEGER,
+    descricao       VARCHAR(30),
+    id_rras         INTEGER,
+    PRIMARY KEY(id_reg_saude),
+    FOREIGN KEY(id_rras) REFERENCES tb_rras(id_rras)
+)
